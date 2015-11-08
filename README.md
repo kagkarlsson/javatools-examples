@@ -1,15 +1,33 @@
 
-Build:
- - mvn install
+Building
+====================
 
-Start crappy webapp:
- - MAVEN_OPTS="-Xmx200m" mvn exec:java
+mvn clean install
 
-Simulate requests:
- - mvn exec:java -Psimulate_requests -Dexec.args="http://localhost:8787/slow 3"
- - mvn exec:java -Psimulate_requests -Dexec.args="http://localhost:8787/slowing 1"   (test 1, 5 and 10 parallell requests)
- - mvn exec:java -Psimulate_requests -Dexec.args="http://localhost:8787/caching 10" 
+Scenarios
+====================
 
+Hint: jetty request-threads are on the format `qtp611437735-26`
+
+**Scenario 1**
+ - Start server: `./start_webserver.sh`
+ - Simulate traffic: `./run_requests.sh http://localhost:8787/slow 5`
+ - Use jstack to find out why requests are slow
+ 
+**Scenario 2**
+ - Start server: `./start_webserver.sh`
+ - Simulate traffic: ./run_requests.sh http://localhost:8787/slowing 10`
+ - Use jstack to find out why requests are slow
+
+**Scenario 3**
+ - Start server: `./start_webserver.sh`
+ - Simulate traffic: `./run_requests.sh http://localhost:8787/caching 10`
+ - Run for a while, and there should be an OutOfMemoryError in the webserver log
+ - Find and analyze the heap dump using jmap/jhat
+  
+  
+General tips
+===================
 
 Find process:
  - jps
@@ -23,5 +41,14 @@ Thread summary:
  - jstack [pid] | grep "^\"" | less
 
 One-liners (Funkar lite sämre med exec:java): 
- - jps | grep AppMain | cut -d' ' -f1 | xargs jstack
+ - jps | grep WebappMain | cut -d' ' -f1 | xargs jstack
  - ps aux | grep WebappMain | grep -v grep | cut -d' ' -f2 | xargs jstack
+
+
+Eclipse MAT
+===================
+
+  
+
+
+

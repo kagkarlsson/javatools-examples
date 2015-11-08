@@ -1,0 +1,10 @@
+
+- spotify threaddump analyzer
+- real heapdump (local)
+
+- evt ändra scenario till en  GET av resurs med random id (genererar random string ut)
+	- check i cache
+	- om i cache, return verdi
+	- om ej i cache, generer nytt verdi (simulerar "hämta från db"), putt i cache och return
+
+- ändra objekt i cache till custom-object

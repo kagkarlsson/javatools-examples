@@ -1,7 +1,6 @@
 package no.bekk.javatools;
 
 import no.bekk.javatools.service.Filestore;
-import no.bekk.javatools.service.MaxSizeHashMap;
 import no.bekk.javatools.service.MyCache;
 import no.bekk.javatools.service.MyOtherCache;
 import org.eclipse.jetty.server.Request;
@@ -37,10 +36,10 @@ public class RequestHandler extends AbstractHandler {
 			writer.print("Done slowly!");
 
 		} else if (target.equals("/slowing")) {
-			myCache.update(randomAlphabetic(40), randomAlphabetic(40));
+			myCache.update(randomAlphabetic(40));
 
 		} else if (target.equals("/caching")) {
-			myOtherCache.add(randomAlphabetic(40));
+			myOtherCache.update(randomAlphabetic(40));
 			sleep(10);
 		}
 
