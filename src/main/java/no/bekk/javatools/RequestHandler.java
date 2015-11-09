@@ -1,8 +1,6 @@
 package no.bekk.javatools;
 
-import no.bekk.javatools.service.Filestore;
-import no.bekk.javatools.service.MyCache;
-import no.bekk.javatools.service.MyOtherCache;
+import no.bekk.javatools.service.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -14,12 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-
 public class RequestHandler extends AbstractHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(RequestHandler.class);
 
-	private Filestore filestore = new Filestore();
+	private SlowTokenStore slowTokenStore = new SlowTokenStore();
+	private FastTokenStore fastTokenStore = new FastTokenStore();
+
 	private MyCache myCache = new MyCache();
 	private MyOtherCache myOtherCache = new MyOtherCache();
 
@@ -29,18 +27,35 @@ public class RequestHandler extends AbstractHandler {
 
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/plain");
-		PrintWriter writer = response.getWriter();
 
-		if (target.equals("/slow")) {
-			filestore.doSomeHeavyWritingToDisk();
-			writer.print("Done slowly!");
+		long id = Long.parseLong(request.getParameter("id"));
 
-		} else if (target.equals("/slowing")) {
-			myCache.update(randomAlphabetic(40));
+		if (target.contains("/get_token1")) {
+			Token value = slowTokenStore.get(id);
+			//.doSomeHeavyWritingToDisk()
+			response.getWriter().write(value.get());
 
-		} else if (target.equals("/caching")) {
-			myOtherCache.update(randomAlphabetic(40));
-			sleep(10);
+
+		} else if (target.contains("/get_token2")) {
+			Token value = myCache.get(id);
+			if (value == null) {
+				value = fastTokenStore.get(id);
+				myCache.put(id, value);
+			}
+			response.getWriter().write(value.get());
+
+
+		} else if (target.contains("/get_token3")) {
+			Token value = myOtherCache.get(id);
+			if (value == null) {
+				value = fastTokenStore.get(id);
+				myOtherCache.put(id, value);
+			}
+			response.getWriter().write(value.get());
+
+
+		} else {
+			throw new IllegalStateException("unknown target " + target);
 		}
 
 		response.flushBuffer();
